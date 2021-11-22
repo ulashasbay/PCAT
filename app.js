@@ -1,8 +1,11 @@
 const express = require('express');
+const fileUpload = require('express-fileupload');
+const mongoose = require('mongoose');
 const ejs = require('ejs');
 const path = require('path');
 const Photo = require('./models/Photo');
-const mongoose = require('mongoose');
+const fs = require('fs');
+
 
 
 const app = express();
@@ -17,10 +20,10 @@ app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
-
+app.use(fileUpload());
 // Routes
 app.get('/', async (req, res) => {
-    const photos = await Photo.find({});
+    const photos = await Photo.find({}).sort('-dateCreated');
     res.render('index', {
         photos
     });
@@ -42,10 +45,26 @@ app.get('/add', (req, res) => {
     res.render('add');
 });
 
-app.post('/photos', async (req, res) => {
-    await Photo.create(req.body);
-    res.redirect('/');
-    
+// Upload edilecek image çin önce eğer yok ise public/uploads klasörü oluşturyoruz. Sonrasında image i oraya taşıyıp adresini mongodb ye yazıyoruz
+app.post('/photos', (req, res) => {
+    // await Photo.create(req.body);
+    // res.redirect('/');
+    const uploadDir = 'public/uploads';
+
+    if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir)
+    };
+
+    let uploadedImage = req.files.image;
+    let uploadedPath = __dirname + '/public/uploads/' + uploadedImage.name;
+
+    uploadedImage.mv(uploadedPath, async () => {
+        await Photo.create({
+            ...req.body,
+            image: '/uploads/' + uploadedImage.name
+        });
+        res.redirect('/');
+    });   
 });
 
 
