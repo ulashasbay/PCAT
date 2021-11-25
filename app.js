@@ -30,15 +30,12 @@ app.get('/', photoController.getAllPhotos);
 app.get('/photos/:id', photoController.getPhoto);
 // Upload edilecek image çin önce eğer yok ise public/uploads klasörü oluşturyoruz. Sonrasında image i oraya taşıyıp adresini mongodb ye yazıyoruz
 app.post('/photos', photoController.createPhoto);
-// Update 
-app.put('/photos/:id', photoController.updatePhoto);
-// Delete
-app.delete('/photos/:id', photoController.deletePhoto);
+app.put('/photos/:id', photoController.updatePhoto);  // Update 
+app.delete('/photos/:id', photoController.deletePhoto);  // Delete
 
 app.get('/about', pageController.getAboutPage);
 app.get('/add', pageController.getAddPage);
-// Edit page
-app.get('/photos/edit/:id', pageController.getEditPage);
+app.get('/photos/edit/:id', pageController.getEditPage); // Edit page
 
 
 
